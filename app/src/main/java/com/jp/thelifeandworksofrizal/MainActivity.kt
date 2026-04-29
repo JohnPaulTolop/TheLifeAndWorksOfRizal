@@ -2,24 +2,39 @@ package com.jp.thelifeandworksofrizal
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontFamily
 import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import androidx.navigation.navArgument
 import com.google.firebase.FirebaseApp
-import com.example.yourapp.GetStartedScreen
+import com.example.yourapp.GetStartedScreen // Adjust to your actual package
 import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.automirrored.filled.ShowChart
+
+// Reference Color Palette from Vermeer Design
+private val DarkBg = Color(0xFF0A0C0A)
+private val GoldAccent = Color(0xFFD4AF37)
+private val CreamText = Color(0xFFFDFBF7)
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.dark(
+                android.graphics.Color.TRANSPARENT
+            )
+        )
         FirebaseApp.initializeApp(this)
         setContent {
             @OptIn(ExperimentalMaterial3Api::class)
@@ -50,32 +65,45 @@ sealed class Screen(val route: String) {
 @Composable
 fun RizalBottomNavigationBar(selectedTab: Int, onTabSelected: (Int) -> Unit) {
     NavigationBar(
-        containerColor = MaterialTheme.colorScheme.background,
+        containerColor = DarkBg,
+        contentColor = CreamText,
         tonalElevation = 8.dp
     ) {
+        val navColors = NavigationBarItemDefaults.colors(
+            selectedIconColor = DarkBg,
+            selectedTextColor = GoldAccent,
+            indicatorColor = GoldAccent,
+            unselectedIconColor = CreamText.copy(alpha = 0.5f),
+            unselectedTextColor = CreamText.copy(alpha = 0.5f)
+        )
+
         NavigationBarItem(
             icon = { Icon(Icons.Filled.Home, contentDescription = "Home") },
-            label = { Text("Home") },
+            label = { Text("Home", fontFamily = FontFamily.Serif) },
             selected = selectedTab == 0,
-            onClick = { onTabSelected(0) }
+            onClick = { onTabSelected(0) },
+            colors = navColors
         )
         NavigationBarItem(
             icon = { Icon(Icons.Filled.Book, contentDescription = "Chapters") },
-            label = { Text("Chapters") },
+            label = { Text("Chapters", fontFamily = FontFamily.Serif) },
             selected = selectedTab == 1,
-            onClick = { onTabSelected(1) }
+            onClick = { onTabSelected(1) },
+            colors = navColors
         )
         NavigationBarItem(
             icon = { Icon(Icons.AutoMirrored.Filled.ShowChart, contentDescription = "Progress") },
-            label = { Text("Progress") },
+            label = { Text("Progress", fontFamily = FontFamily.Serif) },
             selected = selectedTab == 2,
-            onClick = { onTabSelected(2) }
+            onClick = { onTabSelected(2) },
+            colors = navColors
         )
         NavigationBarItem(
             icon = { Icon(Icons.Filled.Person, contentDescription = "Profile") },
-            label = { Text("Profile") },
+            label = { Text("Profile", fontFamily = FontFamily.Serif) },
             selected = selectedTab == 3,
-            onClick = { onTabSelected(3) }
+            onClick = { onTabSelected(3) },
+            colors = navColors
         )
     }
 }
@@ -89,15 +117,44 @@ fun RizalApp() {
     val currentRoute = navBackStackEntry?.destination?.route
 
     Scaffold(
+        containerColor = DarkBg, // Applies the dark theme globally
         topBar = {
+            // Hide default top bar ONLY for Dashboard and Get Started
             if (currentRoute != Screen.Dashboard.route && currentRoute != "get_started") {
+
                 CenterAlignedTopAppBar(
-                    title = { Text(getScreenTitle(currentRoute)) },
+                    title = {
+                        Text(
+                            text = getScreenTitle(currentRoute),
+                            color = CreamText,
+                            fontFamily = FontFamily.Serif
+                        )
+                    },
                     navigationIcon = {
-                        TextButton(onClick = { navController.popBackStack() }) {
-                            Text("Back")
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(
+                                Icons.Default.ArrowBack,
+                                contentDescription = "Back",
+                                tint = GoldAccent
+                            )
                         }
-                    }
+                    },
+                    actions = {
+                        // Add the bookmark icon ONLY when we are on the ChapterDetail screen
+                        if (currentRoute?.startsWith("chapterDetail") == true) {
+                            IconButton(onClick = { /* TODO: Handle Bookmark */ }) {
+                                Icon(
+                                    Icons.Outlined.BookmarkBorder,
+                                    contentDescription = "Bookmark",
+                                    tint = GoldAccent
+                                )
+                            }
+                        }
+                    },
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        containerColor = Color.Transparent, // Let screen backgrounds show through
+                        scrolledContainerColor = DarkBg
+                    )
                 )
             }
         },
@@ -187,14 +244,14 @@ fun RizalApp() {
 }
 
 private fun getScreenTitle(route: String?): String {
-    return when (route) {
-        Screen.Story.route -> "Story of Rizal"
-        Screen.ChapterDetail.route -> "Chapter Detail"
-        Screen.QuizChapters.route -> "Quiz Chapters"
-        Screen.Quiz.route -> "Quiz"
-        Screen.WrittenReport.route -> "Written Report"
-        Screen.Members.route -> "Members"
-        Screen.AiAssistant.route -> "AI Assistant"
+    return when {
+        route == Screen.Story.route -> "Story of Rizal"
+        route?.startsWith("chapterDetail") == true -> "Chapter Detail" // Modified to match routes with arguments
+        route == Screen.QuizChapters.route -> "Quiz Chapters"
+        route?.startsWith("quiz/") == true -> "Quiz"
+        route == Screen.WrittenReport.route -> "Written Report"
+        route == Screen.Members.route -> "Members"
+        route == Screen.AiAssistant.route -> "AI Assistant"
         else -> "The Life and Works of Rizal"
     }
 }

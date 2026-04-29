@@ -192,9 +192,11 @@ object RizalData {
     )
 
     val members = listOf(
-        MemberInfo("Developer", "Research Lead"),
-        MemberInfo("Member 2", "UI Designer"),
-        MemberInfo("Member 3", "Content Writer"),
-        MemberInfo("Member 4", "Presenter")
+        MemberInfo("Tolop, John Paul", "Project Lead, Backend Developer"),
+        MemberInfo("Mabansag, Rolando Jr.", "UI Designer, Front-end Developer"),
+        MemberInfo("Crisostomo, Roger", "Lead Writer"),
+        MemberInfo("Dabocol, Dexter", "Presenter"),
+        MemberInfo("Bardaje, Jana June", "Researcher"),
+        MemberInfo("Delacruz, Prince Dale", "Researcher")
     )
 }
