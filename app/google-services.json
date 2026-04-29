@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "808999914139",
+    "project_id": "rizal-e7812",
+    "storage_bucket": "rizal-e7812.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:808999914139:android:4d4a013289b6624460943e",
+        "android_client_info": {
+          "package_name": "com.jp.thelifeandworksofrizal"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDFWdH_pSr9S7d72be5IDBW6qsd4rUIDA0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
