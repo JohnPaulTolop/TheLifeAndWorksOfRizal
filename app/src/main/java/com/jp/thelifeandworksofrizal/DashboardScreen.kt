@@ -1,6 +1,8 @@
 package com.jp.thelifeandworksofrizal
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,21 +14,23 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.foundation.Image
-import androidx.compose.ui.res.painterResource
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.LazyColumn
+import com.example.yourapp.DarkOrangeGlow
 
+// Reference Color Palette
+private val DarkBg = Color(0xFF0A0C0A)
+private val GoldAccent = Color(0xFFD4AF37)
+private val CreamText = Color(0xFFFDFBF7)
 
 @Composable
 fun DashboardScreen(
@@ -37,174 +41,225 @@ fun DashboardScreen(
     onAiAssistantClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
+    Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFFF5F6FA))
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 20.dp, vertical = 24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+            .background(DarkBg)
     ) {
+        // 1. Faded Background Image
+        Image(
+            painter = painterResource(id = R.drawable.splash_background),
+            contentDescription = "Background",
+            contentScale = ContentScale.Crop,
+            alpha = 0.1f, // Slightly lower alpha for the dashboard so it doesn't compete with the cards
+            modifier = Modifier.fillMaxSize()
+        )
 
-        // Header
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Column {
-                Text(
-                    text = "Rizal Learning",
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = Color(0xFF1E293B)
+        // 2. Vignette & Glow Overlay
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    brush = Brush.radialGradient(
+                        colors = listOf(
+                            DarkOrangeGlow.copy(alpha = 0.4f), // Softer warm orange glow in the center
+                            DarkBg.copy(alpha = 0.85f),        // Smooth transition to dark
+                            DarkBg                             // Fully solid dark border at the extremes
+                        ),
+                        radius = 1800f // Significantly increased radius to eliminate harsh edges
+                    )
                 )
-                Text(
-                    text = "Explore stories, quizzes, and reports",
-                    fontSize = 14.sp,
-                    color = Color(0xFF64748B)
+        )
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 24.dp, vertical = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+
+            // Header
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column {
+                    Text(
+                        text = "Rizal Learning",
+                        fontSize = 32.sp,
+                        fontWeight = FontWeight.Black,
+                        color = CreamText,
+                        fontFamily = FontFamily.Serif,
+                        letterSpacing = 1.sp
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Explore stories, quizzes, and reports",
+                        fontSize = 14.sp,
+                        color = GoldAccent.copy(alpha = 0.8f),
+                        fontFamily = FontFamily.Serif
+                    )
+                }
+
+                Image(
+                    painter = painterResource(id = R.drawable.profilepic),
+                    contentDescription = "User Profile",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(48.dp)
+                        .border(1.dp, GoldAccent, CircleShape)
+                        .padding(4.dp)
+                        .clip(CircleShape)
+                        .background(GoldAccent.copy(alpha = 0.2f))
                 )
             }
 
-            // Profile avatar placeholder
-            Box(
-                modifier = Modifier
-                    .size(44.dp)
-                    .clip(CircleShape)
-                    .background(Color.Gray)
-            )
-        }
+            Spacer(modifier = Modifier.height(16.dp))
 
-        // Feature grid
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(14.dp)
-        ) {
-            DashboardFeatureCard(
-                title = "Story",
-                subtitle = "Read life stories and works of Rizal",
-                icon = Icons.Rounded.MenuBook,
-                accent = Color(0xFF60A5FA),
-                onClick = onStoryClick,
-                modifier = Modifier.weight(1f)
-            )
-            DashboardFeatureCard(
-                title = "Quiz",
-                subtitle = "Test your knowledge with fun quizzes",
-                icon = Icons.Rounded.Create,
-                accent = Color(0xFF22C55E),
-                onClick = onQuizClick,
-                modifier = Modifier.weight(1f)
-            )
-        }
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(14.dp)
-        ) {
-            DashboardFeatureCard(
-                title = "Reports",
-                subtitle = "View your activity and learning reports",
-                icon = Icons.Rounded.Article,
-                accent = Color(0xFFF59E0B),
-                onClick = onReportClick,
-                modifier = Modifier.weight(1f)
-            )
-            DashboardFeatureCard(
-                title = "Members",
-                subtitle = "See classmates and class activities",
-                icon = Icons.Rounded.Groups,
-                accent = Color(0xFFF472B6),
-                onClick = onMembersClick,
-                modifier = Modifier.weight(1f)
-            )
-        }
-
-        DashboardFeatureCard(
-            title = "AI Assistant",
-            subtitle = "Ask questions and get help about Rizal anytime",
-            icon = Icons.Rounded.AutoAwesome,
-            accent = Color(0xFFA78BFA),
-            onClick = onAiAssistantClick,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        // Continue Learning card
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(24.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-        ) {
-            Column(
-                modifier = Modifier
-                    .background(Color.White)
-                    .padding(16.dp)
+            // Feature grid
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Text(
-                    text = "Continue Learning",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
-                    color = Color(0xFF1E293B)
+                DashboardFeatureCard(
+                    title = "Story",
+                    subtitle = "Read life stories and works of Rizal",
+                    icon = Icons.Rounded.MenuBook,
+                    onClick = onStoryClick,
+                    modifier = Modifier.weight(1f)
                 )
-                Text(
-                    text = "Pick up where you left off",
-                    fontSize = 12.sp,
-                    color = Color(0xFF64748B)
+                DashboardFeatureCard(
+                    title = "Quiz",
+                    subtitle = "Test your knowledge with fun quizzes",
+                    icon = Icons.Rounded.Create,
+                    onClick = onQuizClick,
+                    modifier = Modifier.weight(1f)
                 )
-                Spacer(modifier = Modifier.height(12.dp))
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                DashboardFeatureCard(
+                    title = "Reports",
+                    subtitle = "View your activity and learning reports",
+                    icon = Icons.Rounded.Article,
+                    onClick = onReportClick,
+                    modifier = Modifier.weight(1f)
+                )
+                DashboardFeatureCard(
+                    title = "Members",
+                    subtitle = "See classmates and class activities",
+                    icon = Icons.Rounded.Groups,
+                    onClick = onMembersClick,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            DashboardFeatureCard(
+                title = "AI Assistant",
+                subtitle = "Ask questions and get help about Rizal anytime",
+                icon = Icons.Rounded.AutoAwesome,
+                onClick = onAiAssistantClick,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Continue Learning card
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .border(1.dp, GoldAccent.copy(alpha = 0.3f), RoundedCornerShape(16.dp)),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.Transparent)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .background(
+                            Brush.verticalGradient(
+                                colors = listOf(Color(0xFF1A1A1A), Color(0xFF0F0F0F))
+                            )
+                        )
+                        .padding(20.dp)
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .size(36.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(Color(0xFF60A5FA)),
-                        contentAlignment = Alignment.Center
+                    Text(
+                        text = "Continue Learning",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp,
+                        color = GoldAccent,
+                        fontFamily = FontFamily.Serif
+                    )
+                    Text(
+                        text = "Pick up where you left off",
+                        fontSize = 12.sp,
+                        color = CreamText.copy(alpha = 0.7f)
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(
-                            imageVector = Icons.Rounded.MenuBook,
-                            contentDescription = "Book",
-                            tint = Color.White
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Column {
-                        Text(
-                            text = "Noli Me Tángere",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 14.sp,
-                            color = Color(0xFF1E293B)
-                        )
-                        Text(
-                            text = "Chapter 8: The Conspiracy",
-                            fontSize = 12.sp,
-                            color = Color(0xFF64748B)
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        LinearProgressIndicator(
-                            progress = 0.62f,
+                        Box(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .height(6.dp),
-                            color = Color(0xFF60A5FA),
-                            trackColor = Color(0xFFE0E7FF)
-                        )
-                    }
-                    Spacer(modifier = Modifier.weight(1f))
-                    Button(
-                        onClick = { /* Continue action */ },
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Text("Continue")
+                                .size(48.dp)
+                                .border(1.dp, GoldAccent.copy(alpha = 0.5f), RoundedCornerShape(12.dp))
+                                .background(DarkBg, RoundedCornerShape(12.dp)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.MenuBook,
+                                contentDescription = "Book",
+                                tint = GoldAccent
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "Noli Me Tángere",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp,
+                                color = CreamText,
+                                fontFamily = FontFamily.Serif
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = "Chapter 8: The Conspiracy",
+                                fontSize = 12.sp,
+                                color = CreamText.copy(alpha = 0.7f)
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            LinearProgressIndicator(
+                                progress = { 0.62f },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(4.dp)
+                                    .clip(RoundedCornerShape(2.dp)),
+                                color = GoldAccent,
+                                trackColor = GoldAccent.copy(alpha = 0.2f),
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(16.dp))
+                        IconButton(
+                            onClick = { /* Continue action */ },
+                            modifier = Modifier
+                                .size(40.dp)
+                                .background(GoldAccent.copy(alpha = 0.1f), CircleShape)
+                        ) {
+                            Icon(
+                                Icons.Rounded.ArrowForward,
+                                contentDescription = "Continue",
+                                tint = GoldAccent
+                            )
+                        }
                     }
                 }
             }
+
+            Spacer(modifier = Modifier.height(24.dp))
         }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Bottom navigation bar with floating action button would be implemented in MainActivity
     }
 }
 
@@ -213,22 +268,26 @@ private fun DashboardFeatureCard(
     title: String,
     subtitle: String,
     icon: ImageVector,
-    accent: Color,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
         onClick = onClick,
-        modifier = modifier.height(152.dp),
-        shape = RoundedCornerShape(24.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        modifier = modifier
+            .height(160.dp)
+            .border(1.dp, GoldAccent.copy(alpha = 0.3f), RoundedCornerShape(16.dp)),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(
                     Brush.verticalGradient(
-                        colors = listOf(accent.copy(alpha = 0.15f), accent.copy(alpha = 0.05f))
+                        colors = listOf(
+                            Color(0xFF1A1A1A).copy(alpha = 0.8f),
+                            Color(0xFF0A0C0A).copy(alpha = 0.9f)
+                        )
                     )
                 )
                 .padding(16.dp),
@@ -236,28 +295,33 @@ private fun DashboardFeatureCard(
         ) {
             Box(
                 modifier = Modifier
-                    .size(40.dp)
-                    .background(accent.copy(alpha = 0.25f), CircleShape),
+                    .size(44.dp)
+                    .border(1.dp, GoldAccent.copy(alpha = 0.4f), RoundedCornerShape(12.dp))
+                    .background(DarkBg, RoundedCornerShape(12.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = icon,
                     contentDescription = title,
-                    tint = accent
+                    tint = GoldAccent,
+                    modifier = Modifier.size(24.dp)
                 )
             }
             Column {
                 Text(
                     text = title,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF1E293B),
-                    fontSize = 16.sp
+                    color = CreamText,
+                    fontSize = 18.sp,
+                    fontFamily = FontFamily.Serif
                 )
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = subtitle,
                     fontSize = 12.sp,
-                    color = Color(0xFF64748B),
+                    color = CreamText.copy(alpha = 0.6f),
                     maxLines = 2,
+                    lineHeight = 16.sp,
                     overflow = TextOverflow.Ellipsis
                 )
             }

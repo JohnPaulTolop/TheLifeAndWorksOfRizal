@@ -2,19 +2,25 @@ package com.jp.thelifeandworksofrizal
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,15 +29,23 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
+import com.example.yourapp.DarkOrangeGlow
+
+// Reference Color Palette
+private val DarkBg = Color(0xFF0A0C0A)
+private val GoldAccent = Color(0xFFD4AF37)
+private val CreamText = Color(0xFFFDFBF7)
+private val DarkGreenGlow = Color(0xFF143014)
+
 @Composable
 fun QuizScreen(
     quiz: ChapterQuiz,
@@ -60,97 +74,180 @@ fun QuizScreen(
 
     val currentQuestion = quiz.questions[currentIndex]
 
-    LazyColumn(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF5F7FB))
-            .padding(horizontal = 16.dp),
-        contentPadding = PaddingValues(vertical = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(14.dp)
+            .background(DarkBg)
     ) {
-        item {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = Color.White)
-            ) {
-                Column(modifier = Modifier.padding(20.dp)) {
+        // 2. Vignette & Glow Overlay
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    brush = Brush.radialGradient(
+                        colors = listOf(
+                            DarkOrangeGlow.copy(alpha = 0.4f), // Softer warm orange glow in the center
+                            DarkBg.copy(alpha = 0.85f),        // Smooth transition to dark
+                            DarkBg                             // Fully solid dark border at the extremes
+                        ),
+                        radius = 1800f // Significantly increased radius to eliminate harsh edges
+                    )
+                )
+        )
+
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 24.dp),
+            contentPadding = PaddingValues(top = 24.dp, bottom = 48.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // Header Section
+            item {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "CHAPTER ${currentIndex + 1} QUIZ", // Example dynamic header
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = GoldAccent,
+                        fontFamily = FontFamily.SansSerif,
+                        letterSpacing = 2.sp
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = quiz.chapterTitle,
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = Color(0xFF111827),
-                        lineHeight = 28.sp
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Black,
+                        color = CreamText,
+                        fontFamily = FontFamily.Serif,
+                        textAlign = TextAlign.Center,
+                        lineHeight = 32.sp
                     )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Divider(
+                        color = GoldAccent.copy(alpha = 0.3f),
+                        thickness = 1.dp,
+                        modifier = Modifier.fillMaxWidth(0.8f)
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
                     Text(
                         text = "Question ${currentIndex + 1} of ${quiz.questions.size}",
                         fontSize = 14.sp,
-                        color = Color(0xFF6B7280)
+                        color = CreamText.copy(alpha = 0.6f),
+                        fontFamily = FontFamily.SansSerif,
+                        letterSpacing = 1.sp
                     )
                 }
             }
-        }
 
-        item {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = Color.White)
-            ) {
-                Column(modifier = Modifier.padding(20.dp)) {
-                    Text(
-                        text = currentQuestion.question,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1E293B),
-                        lineHeight = 28.sp
-                    )
+            // Question Card
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+                    border = BorderStroke(1.dp, GoldAccent.copy(alpha = 0.3f))
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                Brush.verticalGradient(
+                                    colors = listOf(
+                                        Color(0xFF1A1A1A).copy(alpha = 0.8f),
+                                        DarkBg.copy(alpha = 0.9f)
+                                    )
+                                )
+                            )
+                            .padding(24.dp)
+                    ) {
+                        Text(
+                            text = currentQuestion.question,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = CreamText,
+                            fontFamily = FontFamily.Serif,
+                            lineHeight = 28.sp,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
                 }
+                Spacer(modifier = Modifier.height(8.dp))
             }
-        }
 
-        items(currentQuestion.options.size) { optionIndex ->
-            val option = currentQuestion.options[optionIndex]
-            QuizOptionCard(
-                text = option,
-                selected = selectedAnswer == option,
-                onClick = { selectedAnswer = option }
-            )
-        }
-
-        item {
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Button(
-                onClick = {
-                    if (selectedAnswer == currentQuestion.correctAnswer) {
-                        score++
-                    }
-
-                    if (currentIndex == quiz.questions.lastIndex) {
-                        finished = true
-                    } else {
-                        currentIndex++
-                        selectedAnswer = null
-                    }
-                },
-                enabled = selectedAnswer != null,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    text = if (currentIndex == quiz.questions.lastIndex) "Finish Quiz" else "Next Question",
-                    modifier = Modifier.padding(vertical = 6.dp)
+            // Options
+            items(currentQuestion.options.size) { optionIndex ->
+                val option = currentQuestion.options[optionIndex]
+                QuizOptionCard(
+                    text = option,
+                    selected = selectedAnswer == option,
+                    onClick = { selectedAnswer = option }
                 )
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            // Action Buttons
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
 
-            OutlinedButton(
-                onClick = onBackToChapters,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Back to Chapters")
+                Button(
+                    onClick = {
+                        if (selectedAnswer == currentQuestion.correctAnswer) {
+                            score++
+                        }
+
+                        if (currentIndex == quiz.questions.lastIndex) {
+                            finished = true
+                        } else {
+                            currentIndex++
+                            selectedAnswer = null
+                        }
+                    },
+                    enabled = selectedAnswer != null,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = GoldAccent,
+                        contentColor = DarkBg,
+                        disabledContainerColor = GoldAccent.copy(alpha = 0.3f),
+                        disabledContentColor = DarkBg.copy(alpha = 0.5f)
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp)
+                ) {
+                    Text(
+                        text = if (currentIndex == quiz.questions.lastIndex) "FINISH QUIZ" else "NEXT QUESTION",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = FontFamily.SansSerif,
+                        letterSpacing = 1.sp
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                OutlinedButton(
+                    onClick = onBackToChapters,
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = CreamText
+                    ),
+                    border = BorderStroke(1.dp, GoldAccent.copy(alpha = 0.5f)),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp)
+                ) {
+                    Text(
+                        text = "BACK TO CHAPTERS",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = FontFamily.SansSerif,
+                        letterSpacing = 1.sp
+                    )
+                }
             }
         }
     }
@@ -166,21 +263,29 @@ private fun QuizOptionCard(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() },
+        shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (selected) Color(0xFFDBEAFE) else Color.White
+            containerColor = if (selected) GoldAccent.copy(alpha = 0.15f) else Color.Transparent
         ),
         border = BorderStroke(
-            width = 1.dp,
-            color = if (selected) Color(0xFF2563EB) else Color(0xFFE5E7EB)
+            width = if (selected) 1.5.dp else 1.dp,
+            color = if (selected) GoldAccent else GoldAccent.copy(alpha = 0.3f)
         )
     ) {
-        Text(
-            text = text,
-            modifier = Modifier.padding(18.dp),
-            fontSize = 15.sp,
-            color = Color(0xFF111827),
-            lineHeight = 22.sp
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = text,
+                fontSize = 16.sp,
+                color = if (selected) GoldAccent else CreamText,
+                fontFamily = FontFamily.Serif,
+                lineHeight = 24.sp
+            )
+        }
     }
 }
 
@@ -192,59 +297,137 @@ private fun QuizResultScreen(
     onRetry: () -> Unit,
     onBackToChapters: () -> Unit
 ) {
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF5F7FB))
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center
+            .background(DarkBg)
     ) {
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = Color.White)
+        // 2. Vignette & Glow Overlay
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    brush = Brush.radialGradient(
+                        colors = listOf(
+                            DarkOrangeGlow.copy(alpha = 0.4f), // Softer warm orange glow in the center
+                            DarkBg.copy(alpha = 0.85f),        // Smooth transition to dark
+                            DarkBg                             // Fully solid dark border at the extremes
+                        ),
+                        radius = 1800f // Significantly increased radius to eliminate harsh edges
+                    )
+                )
+        )
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(24.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column(modifier = Modifier.padding(24.dp)) {
-                Text(
-                    text = "Quiz Finished",
-                    fontSize = 26.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = Color(0xFF111827)
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    text = chapterTitle,
-                    fontSize = 16.sp,
-                    color = Color(0xFF4B5563),
-                    lineHeight = 22.sp
-                )
-
-                Spacer(modifier = Modifier.height(18.dp))
-
-                Text(
-                    text = "Your Score: $score / $total",
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF1D4ED8)
-                )
-
-                Spacer(modifier = Modifier.height(20.dp))
-
-                Button(
-                    onClick = onRetry,
-                    modifier = Modifier.fillMaxWidth()
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .border(1.dp, GoldAccent.copy(alpha = 0.5f), RoundedCornerShape(20.dp)),
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.Transparent)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            Brush.verticalGradient(
+                                colors = listOf(Color(0xFF1A1A1A).copy(alpha = 0.9f), DarkBg)
+                            )
+                        )
+                        .padding(32.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("Try Again")
-                }
+                    Text(
+                        text = "QUIZ COMPLETED",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = GoldAccent,
+                        fontFamily = FontFamily.SansSerif,
+                        letterSpacing = 2.sp
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = chapterTitle,
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = CreamText,
+                        fontFamily = FontFamily.Serif,
+                        textAlign = TextAlign.Center,
+                        lineHeight = 30.sp
+                    )
+                    Spacer(modifier = Modifier.height(32.dp))
+                    Divider(
+                        color = GoldAccent.copy(alpha = 0.3f),
+                        thickness = 1.dp,
+                        modifier = Modifier.fillMaxWidth(0.5f)
+                    )
+                    Spacer(modifier = Modifier.height(32.dp))
 
-                Spacer(modifier = Modifier.height(10.dp))
+                    Text(
+                        text = "YOUR SCORE",
+                        fontSize = 12.sp,
+                        color = CreamText.copy(alpha = 0.6f),
+                        fontFamily = FontFamily.SansSerif,
+                        letterSpacing = 1.sp
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "$score / $total",
+                        fontSize = 48.sp,
+                        fontWeight = FontWeight.Black,
+                        color = GoldAccent,
+                        fontFamily = FontFamily.Serif
+                    )
 
-                OutlinedButton(
-                    onClick = onBackToChapters,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Back to Chapters")
+                    Spacer(modifier = Modifier.height(48.dp))
+
+                    Button(
+                        onClick = onRetry,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = GoldAccent,
+                            contentColor = DarkBg
+                        ),
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp)
+                    ) {
+                        Text(
+                            text = "TRY AGAIN",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = FontFamily.SansSerif,
+                            letterSpacing = 1.sp
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    OutlinedButton(
+                        onClick = onBackToChapters,
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = CreamText
+                        ),
+                        border = BorderStroke(1.dp, GoldAccent.copy(alpha = 0.5f)),
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp)
+                    ) {
+                        Text(
+                            text = "BACK TO CHAPTERS",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = FontFamily.SansSerif,
+                            letterSpacing = 1.sp
+                        )
+                    }
                 }
             }
         }
